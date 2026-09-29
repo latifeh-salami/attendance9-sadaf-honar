@@ -1,0 +1,137 @@
+<!DOCTYPE html><html lang="fa" dir="rtl"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>سامانه حضور و غیاب پایه نهم صدف - مدرسه دخترانه زینب کبری</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>:root{--p:#d85b98;--l:#8d73c8;--ink:#463947;--soft:#fff3fa;--ok:#65b987;--bad:#e56b6f;--warn:#e5a64b}*{box-sizing:border-box}body{margin:0;background:linear-gradient(135deg,#fff8fb,#f1edfb);font-family:Tahoma,Arial,sans-serif;color:var(--ink)}.wrap{max-width:1450px;margin:auto;padding:14px}header{background:linear-gradient(135deg,var(--p),var(--l));color:#fff;border-radius:26px;padding:24px;text-align:center;box-shadow:0 10px 30px #8d73c833}h1{margin:0 0 8px;font-size:clamp(22px,4vw,34px)}header p{margin:5px}.clock{display:inline-block;margin-top:10px;background:#ffffff22;border:1px solid #fff5;border-radius:15px;padding:9px 14px}.lock{display:flex;gap:9px;align-items:center;justify-content:center;flex-wrap:wrap;margin:14px 0}.btn{border:0;border-radius:13px;padding:10px 15px;font-weight:bold;cursor:pointer;background:#fff;color:var(--p);box-shadow:0 3px 12px #0001}.primary{background:var(--p);color:#fff}.danger{background:#fff0f1;color:#b43c45}.panel{background:#fff;border:1px solid #ead9e6;border-radius:20px;padding:16px;margin:14px 0;box-shadow:0 5px 18px #0000000b}.toolbar{display:flex;gap:9px;align-items:center;flex-wrap:wrap}.toolbar input,.toolbar select,.search{border:1px solid #dbcfe0;border-radius:12px;padding:10px;background:#fff;color:var(--ink);font:inherit}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.stat{background:var(--soft);border-radius:18px;padding:14px;text-align:center}.stat b{display:block;font-size:24px;margin-top:5px;color:var(--p)}.tablewrap{overflow:auto;border-radius:15px}table{width:100%;border-collapse:collapse;min-width:760px}th,td{padding:10px;border-bottom:1px solid #eee;text-align:center}th{background:#faf3fb;position:sticky;top:0;z-index:1}.status{border:0;border-radius:11px;padding:8px;font:inherit}.حاضر{background:#e8f7ef;color:#237b50}.غایب{background:#ffebed;color:#a93542}.تاخیر{background:#fff4df;color:#98630e}.موجه{background:#eee9ff;color:#6751a3}.readonly{opacity:.82}.hint{font-size:13px;color:#756878}.teacherModal{position:fixed;inset:0;background:#46394766;display:flex;align-items:center;justify-content:center;padding:14px;z-index:1000}.teacherModal[hidden]{display:none}.studentModal{position:fixed;inset:0;background:#46394766;display:flex;align-items:center;justify-content:center;padding:14px;z-index:1100}.studentModal[hidden]{display:none}.passwordModal{position:fixed;inset:0;background:#46394766;display:flex;align-items:center;justify-content:center;padding:14px;z-index:1200}.passwordModal[hidden]{display:none}.passwordBox{width:min(100%,430px);background:#fff;border-radius:24px;padding:22px;box-shadow:0 18px 55px #46394755}.passwordBox input{width:100%;padding:12px;border:1px solid #ddd;border-radius:12px;font-size:16px;margin-top:8px}.studentBox{width:min(100%,520px);background:#fff;border-radius:24px;padding:20px;box-shadow:0 20px 60px #0004}.studentBox select{width:100%;border:1px solid #dbcfe0;border-radius:12px;padding:12px;font:inherit;background:#fff}.mine{background:#fff7fb;border:2px solid #f0c3dc}.disabledNote{color:#9a8998;font-size:12px}.btn:disabled,.status:disabled,input:disabled{opacity:.55;cursor:not-allowed}.teacherBox{width:min(100%,900px);max-height:90vh;overflow:auto;background:#fff;border-radius:24px;padding:18px;box-shadow:0 20px 60px #0004}.teacherHead{display:flex;align-items:center;justify-content:space-between;gap:10px}.closeBtn{background:#fff0f1;color:#b43c45}.badge{padding:5px 9px;border-radius:10px;font-weight:bold}.good{background:#e8f7ef;color:#237b50}.bad{background:#ffebed;color:#a93542}.muted{color:#8b7e8c}@media(max-width:700px){.stats{grid-template-columns:repeat(2,1fr)}.panel{padding:11px}.toolbar>*{width:100%}}</style></head><body><div class="wrap">
+<header><h1>🌸 سامانه حضور و غیاب پایه نهم صدف</h1><p><b>🏫 مدرسه دخترانه زینب کبری</b></p><p>👩‍🏫 دبیر: لطیفه سلامی سوزانی</p><p>🎨 درس: <b>فرهنگ و هنر</b></p><div class="clock" id="clock">در حال دریافت زمان ایران…</div></header>
+<div class="lock"><span id="lockState">🔒 در انتظار انتخاب دانش‌آموز این دستگاه</span></div>
+<input id="dateInput" type="hidden"><div class="panel">
+<div class="toolbar">
+<button class="btn" onclick="prevDay()">⬅️ روز قبل</button>
+<div class="dateBox">📅 <b id="persianToday">—</b></div>
+<button class="btn primary" onclick="today()">📍 امروز</button><button class="btn" onclick="teacherLogin()">👩‍🏫 پنل دبیر</button>
+<button class="btn" onclick="nextDay()">روز بعد ➡️</button>
+<input class="search" id="search" placeholder="🔎 جستجوی نام دانش‌آموز" oninput="render()">
+</div>
+<p class="hint">ثبت حضور برای هر روز جداگانه ذخیره می‌شود و با بستن و باز کردن فایل در همین مرورگر باقی می‌ماند.</p>
+<p class="hint">هر دستگاه فقط برای یک دانش‌آموز ثبت می‌شود و زمان دقیق ثبت حضور ذخیره خواهد شد.</p></div>
+<div class="studentModal" id="studentModal" hidden><div class="studentBox"><h3 style="margin-top:0;color:#d85b98">👧 انتخاب دانش‌آموز این دستگاه</h3><p>هر دستگاه فقط می‌تواند <b>یک دانش‌آموز</b> را ثبت کند. نام انتخاب‌شده روی همین دستگاه ذخیره می‌شود و قابل تغییر توسط دانش‌آموز نیست.</p><select id="studentSelect"><option value="">انتخاب نام دانش‌آموز</option></select><button class="btn primary" style="width:100%;margin-top:12px" onclick="bindStudent()">ثبت نام این دستگاه</button><button class="btn" style="width:100%;margin-top:8px" onclick="studentModal.hidden=true;teacherLogin()">👩‍🏫 ورود دبیر</button><p class="hint" style="margin-bottom:0">هر دستگاه فقط یک دانش‌آموز را ثبت می‌کند.</p></div></div><div class="passwordModal" id="passwordModal" hidden><div class="passwordBox"><h3 style="margin-top:0;color:#d85b98">🔐 ورود به پنل دبیر</h3><p class="hint">لطفاً رمز دبیر را وارد کنید.</p><label for="teacherPassword">رمز عبور دبیر</label><input id="teacherPassword" type="password" autocomplete="current-password" placeholder="رمز را وارد کنید" onkeydown="if(event.key==='Enter')submitTeacherPassword()"><div class="toolbar" style="margin-top:12px"><button class="btn primary" onclick="submitTeacherPassword()">ورود به پنل</button><button class="btn" onclick="closePasswordModal()">انصراف</button></div><p id="passwordError" class="hint" style="color:#c54b5b;display:none;margin-bottom:0">رمز واردشده صحیح نیست.</p></div></div><div class="teacherModal" id="teacherModal" hidden><div class="teacherBox"><div class="teacherHead"><h3 style="margin:0">👩‍🏫 پنل مخصوص دبیر — گزارش و اصلاح</h3><div class="toolbar"><button class="btn" onclick="teacherLogout()">🔒 قفل پنل</button><button class="btn" onclick="closeTeacherPanel()">✏️️ رفتن به اصلاحات</button><button class="btn closeBtn" onclick="closeTeacherPanel()">✖️ بستن</button></div></div><p class="hint">این بخش قفل است؛ پس از ورود با رمز دبیر، امکان اصلاح حضور و غیاب و دریافت گزارش وجود دارد.</p><div class="toolbar"><button class="btn primary" onclick="teacherReport('حاضر')">🌷 دریافت لیست حاضرین</button><button class="btn danger" onclick="teacherReport('غایب')">🌱 دریافت لیست غایبین</button><button class="btn" onclick="teacherReport('همه')">📋 دریافت گزارش کامل روز</button><button class="btn" onclick="printTeacher()">🖨️ چاپ گزارش دبیر</button></div><div id="teacherPanel" style="margin-top:14px"></div></div></div>
+<div class="stats"><div class="stat">👧 دانش‌آموزان<b id="n">0</b></div><div class="stat">🌷 حاضر<b id="present">0</b></div><div class="stat">🌱 غایب<b id="absent">0</b></div><div class="stat">⏰ تأخیر/موجه<b id="other">0</b></div></div></div></div>
+<div class="panel"><div class="toolbar"><button class="btn primary" id="allPresent" onclick="setAll('حاضر')">✅ همه حاضر</button><button class="btn" id="allAbsent" onclick="setAll('غایب')">❌ همه غایب</button><button class="btn" id="clearAll" onclick="setAll('')">↩️ پاک کردن وضعیت‌ها</button><button class="btn" onclick="print()">🖨️ چاپ</button></div><div class="tablewrap"><table><thead><tr><th>ردیف</th><th>نام دانش‌آموز</th><th>وضعیت</th><th>یادداشت</th><th>آخرین وضعیت</th></tr></thead><tbody id="body"></tbody></table></div></div>
+<div class="panel"><h3>📊 گزارش روز انتخاب‌شده</h3><p id="report">—</p></div></div><div class="panel" style="text-align:center;background:linear-gradient(135deg,#fff0f8,#f4efff);"><h3 style="margin:4px 0 8px;color:#d85b98">🌸 دخترای قشنگم 😊</h3><p style="font-size:16px;line-height:2;margin:0">✨ لطفاً به‌موقع وارد کلاس شوید تا یک روز شاد، منظم و پر از یادگیری داشته باشیم. 🌷😊</p></div>
+<script>
+const SUPABASE_URL = "https://xalmrjsctdootauadkwt.supabase.co";
+const SUPABASE_KEY = "sb_publishable_uDvglm5mJsZ2B81ASXrHdA_dmLEtU62";
+const _sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const KEY='attendance_9_sadaf_honar_1405_1406_v2';let teacherUnlocked=false;sessionStorage.removeItem('teacherUnlocked');let deviceStudentId=localStorage.getItem('attendance_device_student_9_sadaf_honar_v2');deviceStudentId=deviceStudentId===null?null:Number(deviceStudentId);
+const NAMES=["آروین نژاد یمنا","پشتاره فائقه","تازه عفرا","تیرزد اسرا","تدو عایشه","جبار سوزائی فاطمه","جمال زاده سوزانی سیده نور","چرشی فاطمه","خاکی قشمی هاله","خوش رو سارا","دست خون حدیث","دنیا گرد رعنا","رئیسی سوزائی اخلاص","زارعی نسب کوهستکی پور ایمانه","سالاری خاطره","سفاری طولی فاطمه","سلامی عایشه","سلامی مریم","سلامی سوزائی عقیقه","سلامی سوزائی فاطمه","کریمدادی مهسا","ماهی گرسوزائی آنیه","معیارپور فاطمه","ملاحی لافتی هیفا","مهری اسما","همتی سوزائی امل"];
+let data=JSON.parse(localStorage.getItem(KEY)||'null')||{records:{}};
+
+async function syncWithSupabase(){
+  try{
+    const { data: row } = await _sb.from('attendance_9_sadaf_honar').select('records').eq('date', key()).maybeSingle();
+    if(row && row.records){
+      data.records[key()] = row.records;
+      localStorage.setItem(KEY, JSON.stringify(data));
+      render();
+      if(!document.getElementById('teacherModal').hidden) teacherReport('همه');
+    }
+  }catch(e){}
+}
+
+_sb.channel('public:attendance_9_sadaf_honar')
+  .on('postgres_changes', { event: '*', schema: 'public', table: 'attendance_9_sadaf_honar' }, payload => {
+    if(payload.new && payload.new.date === key()){
+      data.records[key()] = payload.new.records;
+      localStorage.setItem(KEY, JSON.stringify(data));
+      render();
+      if(!document.getElementById('teacherModal').hidden) teacherReport('همه');
+    }
+  }).subscribe();
+
+function iranDate(){return new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Tehran',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date())}
+function jalaliParts(g){let d=new Date(g+'T12:00:00+03:30');let a=new Intl.DateTimeFormat('en-US-u-ca-persian',{timeZone:'Asia/Tehran',year:'numeric',month:'numeric',day:'numeric'}).formatToParts(d);let o={};a.forEach(x=>o[x.type]=x.value);return {y:+o.year,m:+o.month,d:+o.day};}
+let jp=jalaliParts(iranDate());
+function shiftDate(g,delta){let d=new Date(g+'T12:00:00+03:30');d.setDate(d.getDate()+delta);return new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Tehran',year:'numeric',month:'2-digit',day:'2-digit'}).format(d);}
+function prevDay(){dateInput.value=shiftDate(key(),-1);loadDate()}
+function nextDay(){dateInput.value=shiftDate(key(),1);loadDate()}
+function faDate(d){return new Intl.DateTimeFormat('fa-IR-u-ca-persian',{timeZone:'Asia/Tehran',year:'numeric',month:'long',day:'numeric',weekday:'long'}).format(new Date(d+'T12:00:00+03:30'))}
+function clock(){document.getElementById('clock').textContent=new Intl.DateTimeFormat('fa-IR',{timeZone:'Asia/Tehran',dateStyle:'full',timeStyle:'medium'}).format(new Date())}setInterval(clock,1000);clock();
+function key(){return dateInput.value}
+function rec(){return data.records[key()]||(data.records[key()]={})}
+function today(){dateInput.value=iranDate();loadDate()}
+function loadDate(){syncWithSupabase();render()}
+
+async function save(){
+  localStorage.setItem(KEY,JSON.stringify(data));
+  try{
+    await _sb.from('attendance_9_sadaf_honar').upsert({
+      date: key(),
+      records: rec(),
+      updated_at: new Date().toISOString()
+    });
+  }catch(e){}
+}
+
+function render(){let q=search.value.trim();let r=rec();let rows=NAMES.map((name,i)=>({name,i})).filter(x=>!q||x.name.includes(q));body.innerHTML=rows.map(x=>{let v=r[x.i]||{status:'',note:'',time:''};let last=latest(x.i);let mine=(deviceStudentId!==null && x.i===deviceStudentId);let submitted=!!v.status;let canEdit=teacherUnlocked|| (mine && !submitted);let cls=mine?'mine':'';return `<tr class="${cls}"><td>${x.i+1}</td><td><b>${esc(x.name)}</b>${mine?' <span class="badge good">دستگاه شما</span>':''}</td><td><select class="status ${v.status}" ${canEdit?'':'disabled'} onchange="set(${x.i},'status',this.value)"><option value="">انتخاب وضعیت</option>${['حاضر','غایب','تاخیر','موجه'].map(s=>`<option ${v.status===s?'selected':''}>${s}</option>`).join('')}</select>${v.time?`<div class="disabledNote">⏰ ${esc(v.time)}</div>`:''}${submitted&&!teacherUnlocked&&mine?'<div class="disabledNote">ثبت شده؛ فقط دبیر می‌تواند اصلاح کند.</div>':''}</td><td><input ${canEdit?'':'disabled'} value="${esc(v.note||'')}" placeholder="یادداشت کوتاه" onchange="set(${x.i},'note',this.value)" style="border:1px solid #ddd;border-radius:10px;padding:8px;width:150px"><br><small class="muted">${v.time?'ثبت: '+esc(v.time):''}</small></td><td>${last?`<span class="badge ${last.status==='حاضر'?'good':last.status==='غایب'?'bad':''}">${last.status}</span><br><small class="muted">${faDate(last.date)}${last.time?' — '+esc(last.time):''}</small>`:'—'}</td></tr>`}).join('');let vals=NAMES.map((_,i)=>r[i]?.status||'غایب');let p=vals.filter(x=>x==='حاضر').length,a=vals.filter(x=>x==='غایب').length,o=vals.filter(x=>x==='تاخیر'||x==='موجه').length;n.textContent=NAMES.length;present.textContent=p;absent.textContent=a;other.textContent=o;report.innerHTML=`تاریخ انتخاب‌شده: <b>${faDate(key())}</b> — حاضر: <b>${p}</b> نفر، غایب: <b>${a}</b> نفر، تأخیر/موجه: <b>${o}</b> نفر.`;updateLock()}
+function nowIran(){return new Intl.DateTimeFormat('fa-IR',{timeZone:'Asia/Tehran',dateStyle:'full',timeStyle:'medium'}).format(new Date())}
+function set(i,k,v){
+ if(!teacherUnlocked && i!==deviceStudentId) return;
+ let r=rec();r[i]=r[i]||{status:'',note:'',time:''};
+ if(!teacherUnlocked && r[i].status) return;
+ r[i][k]=v;
+ if(k==='status' && v && !teacherUnlocked) r[i].time=nowIran();
+ save();render();
+}
+function setAll(v){if(!teacherUnlocked)return;NAMES.forEach((_,i)=>{rec()[i]=rec()[i]||{};rec()[i].status=v;rec()[i].time=v?nowIran():''});save();render()}
+function latest(i){let ds=Object.keys(data.records).sort().reverse();for(let d of ds){if(data.records[d]?.[i]?.status)return {date:d,status:data.records[d][i].status,time:data.records[d][i].time||''}}return null}
+function teacherReport(mode){
+ const r=rec();
+ const rows=NAMES.map((name,i)=>({i,name,status:r[i]?.status||'غایب',note:r[i]?.note||'',time:r[i]?.time||''}));
+ let filtered=mode==='همه'?rows:rows.filter(x=>x.status===mode);
+ let title=mode==='حاضر'?'فهرست حاضرین':mode==='غایب'?'فهرست غایبین':'گزارش کامل حضور و غیاب';
+ teacherPanel.innerHTML=`<div style="background:#fff8fc;border:1px solid #ead9e6;border-radius:16px;padding:14px"><h4 style="margin:0 0 10px">🌸 ${title} — ${faDate(key())}</h4><p>تعداد: <b>${filtered.length}</b> نفر</p><div class="tablewrap"><table style="min-width:680px"><thead><tr><th>ردیف</th><th>نام دانش‌آموز</th><th>حضور و غیاب</th><th>ساعت دقیق ثبت</th><th>یادداشت</th></tr></thead><tbody>${filtered.map(x=>`<tr><td>${x.i+1}</td><td><b>${esc(x.name)}</b></td><td><span class="badge ${x.status==='حاضر'?'good':x.status==='غایب'?'bad':''}">${esc(x.status)}</span></td><td>${x.time?'⏰ '+esc(x.time):'—'}</td><td>${esc(x.note)||'—'}</td></tr>`).join('')}</tbody></table></div><button class="btn primary" onclick="downloadTeacher('${mode}')">⬇️️ دریافت فایل فهرست</button></div>`;
+}
+function downloadTeacher(mode){
+ const r=rec();const rows=NAMES.map((name,i)=>({i,name,status:r[i]?.status||'غایب',note:r[i]?.note||'',time:r[i]?.time||''}));const filtered=mode==='همه'?rows:rows.filter(x=>x.status===mode);const title=mode==='حاضر'?'حاضرین':mode==='غایب'?'غایبین':'گزارش کامل';
+ const lines=[`مدرسه دخترانه زینب کبری`,`پایه نهم صدف`,`دبیر: لطیفه سلامی سوزانی`,`درس: فرهنگ و هنر`,`${title} — ${faDate(key())}`,'','ردیف,نام دانش‌آموز,وضعیت,زمان ثبت,یادداشت',...filtered.map(x=>`${x.i+1},"${x.name.replaceAll('"','""')}","${x.status}","${x.time.replaceAll('"','""')}","${x.note.replaceAll('"','""')}"`)];
+ const blob=new Blob(['\ufeff'+lines.join('\n')],{type:'text/csv;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`گزارش_${title}_${key()}.csv`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500);
+}
+function printTeacher(){
+ const r=rec();const rows=NAMES.map((name,i)=>({i,name,status:r[i]?.status||'غایب',note:r[i]?.note||'',time:r[i]?.time||''}));const w=window.open('','_blank');w.document.write(`<html dir="rtl"><head><meta charset="utf-8"><title>گزارش حضور و غیاب</title><style>body{font-family:Tahoma;padding:25px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #ccc;padding:8px;text-align:center}h2{text-align:center}</style></head><body><h2>گزارش حضور و غیاب نهم صدف</h2><p>مدرسه دخترانه زینب کبری — دبیر: لطیفه سلامی سوزانی</p><p>درس: فرهنگ و هنر</p><p>${faDate(key())}</p><table><tr><th>ردیف</th><th>نام دانش‌آموز</th><th>وضعیت</th><th>زمان ثبت</th><th>یادداشت</th></tr>${rows.map(x=>`<tr><td>${x.i+1}</td><td>${esc(x.name)}</td><td>${esc(x.status)}</td><td>${esc(x.time)}</td><td>${esc(x.note)}</td></tr>`).join('')}</table><script>window.print()<\/script></body></html>`);w.document.close();
+}
+function print(){
+ const r=rec();
+ const rows=NAMES.map((name,i)=>({i,name,status:r[i]?.status||'غایب',note:r[i]?.note||'',time:r[i]?.time||''}));
+ const w=window.open('','_blank');
+ w.document.write(`<html dir="rtl"><head><meta charset="utf-8"><title>گزارش حضور و غیاب</title><style>body{font-family:Tahoma;padding:25px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #ccc;padding:8px;text-align:center}th{background:#f7eef8}h2{text-align:center}</style></head><body><h2>گزارش حضور و غیاب پایه نهم صدف</h2><p>مدرسه دخترانه زینب کبری — دبیر: لطیفه سلامی سوزانی</p><p>درس: فرهنگ و هنر</p><p>${faDate(key())}</p><table><tr><th>ردیف</th><th>نام دانش‌آموز</th><th>حضور و غیاب</th><th>ساعت دقیق ثبت</th><th>یادداشت</th></tr>${rows.map(x=>`<tr><td>${x.i+1}</td><td>${esc(x.name)}</td><td>${esc(x.status)}</td><td>${x.time?'⏰ '+esc(x.time):'—'}</td><td>${esc(x.note)||'—'}</td></tr>`).join('')}</table><script>window.print()<\/script></body></html>`);w.document.close();
+}
+function teacherLogin(){
+ if(teacherUnlocked){openTeacherPanel();return}
+ const modal=document.getElementById('passwordModal');
+ const input=document.getElementById('teacherPassword');
+ const err=document.getElementById('passwordError');
+ err.style.display='none'; input.value=''; modal.hidden=false; setTimeout(()=>input.focus(),50);
+}
+function submitTeacherPassword(){
+ const input=document.getElementById('teacherPassword');
+ const err=document.getElementById('passwordError');
+ if(input.value==='Latifeh1405!'){
+  teacherUnlocked=true;sessionStorage.setItem('teacherUnlocked','1');
+  document.getElementById('passwordModal').hidden=true;
+  openTeacherPanel();render();
+ }else{err.style.display='block';input.select();}
+}
+function closePasswordModal(){document.getElementById('passwordModal').hidden=true;}
+function teacherLogout(){teacherUnlocked=false;sessionStorage.removeItem('teacherUnlocked');closeTeacherPanel();render();}
+function updateLock(){
+ lockState.textContent=deviceStudentId===null?'🔒 ابتدا نام دانش‌آموز این دستگاه را انتخاب کنید':`📱 دستگاه ثبت‌شده برای: ${NAMES[deviceStudentId]}${teacherUnlocked?' — 👩‍🏫 حالت اصلاح دبیر فعال است':''}`;
+ allPresent.disabled=!teacherUnlocked;allAbsent.disabled=!teacherUnlocked;clearAll.disabled=!teacherUnlocked;
+}
+function bindStudent(){const v=studentSelect.value;if(v==='')return alert('لطفاً نام خود را انتخاب کنید.');if(deviceStudentId!==null)return;deviceStudentId=Number(v);localStorage.setItem('attendance_device_student_9_sadaf_honar_v2',String(deviceStudentId));studentModal.hidden=true;render();}
+function openStudentModal(){studentSelect.innerHTML='<option value="">انتخاب نام دانش‌آموز</option>'+NAMES.map((n,i)=>`<option value="${i}">${esc(n)}</option>`).join('');studentModal.hidden=false;}
+function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+dateInput.value=iranDate();render();syncWithSupabase();if(deviceStudentId===null)openStudentModal();else teacherReport('همه');
+function openTeacherPanel(){document.getElementById('teacherModal').hidden=false;teacherReport('همه');}
+function closeTeacherPanel(){document.getElementById('teacherModal').hidden=true;}
+window.addEventListener('keydown',e=>{if(e.key==='Escape'){closePasswordModal();closeTeacherPanel();}});
+</script></body></html>
